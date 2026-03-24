@@ -3,17 +3,17 @@ import whisper
 import os
 from PIL import Image
 
-# 1. App Configuration
+# 1. App Configuration & Theme
 st.set_page_config(page_title="Solaiman Transcript & SEO", page_icon="🎯", layout="wide")
 
-# Custom Styling for Perfect Centering & Dark Theme
+# Custom CSS for perfect centering of Photo, Title, and Subtitle
 st.markdown("""
     <style>
-    /* Background and Global Styles */
+    /* Background and Global Color */
     .main { background-color: #0e1117; color: white; }
     
-    /* Centering Header Elements */
-    .header-container {
+    /* Centering the Header Container */
+    .header-box {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -23,22 +23,24 @@ st.markdown("""
         padding-top: 30px;
     }
 
+    /* Professional Title Style */
     .main-title {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-weight: 800;
-        font-size: 45px;
+        font-size: 50px;
         color: #ffffff;
         margin-top: 15px;
-        margin-bottom: 5px;
+        margin-bottom: 0px;
     }
 
+    /* Professional Sub-title Style */
     .sub-title {
-        font-size: 18px;
+        font-size: 20px;
         color: #8b949e;
         margin-bottom: 40px;
     }
 
-    /* Red Professional Button */
+    /* Red Action Button */
     .stButton>button {
         width: 100%;
         border-radius: 12px;
@@ -46,95 +48,91 @@ st.markdown("""
         color: white;
         height: 3.5em;
         font-weight: bold;
-        font-size: 18px;
+        font-size: 19px;
         border: none;
-        margin-top: 10px;
+        margin-top: 20px;
     }
-    
-    /* Centering the File Uploader Label */
+
+    /* Center the file uploader */
     .stFileUploader label {
         display: flex;
         justify-content: center;
-        font-size: 18px !important;
         color: #ffffff !important;
-    }
-
-    /* Centering footer */
-    .footer {
-        text-align: center;
-        padding: 50px;
-        color: #555;
+        font-size: 18px !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Centered Header Section (Photo then Title)
-st.markdown('<div class="header-container">', unsafe_allow_html=True)
+# -------------------------------------------------------------------
+# ২. লোগো ও টাইটেল সেকশন (সবকিছু মাঝখানে রাখার জন্য)
+# -------------------------------------------------------------------
+st.markdown('<div class="header-box">', unsafe_allow_html=True)
 
-# Centering Image using Columns
+# মাঝখানে ছবি আনার জন্য কলাম ব্যবহার
 col_l, col_m, col_r = st.columns([1, 1, 1])
 with col_m:
     try:
-        # Checking for the photo in your GitHub
-        img = Image.open("logo.jpeg")
-        st.image(img, width=220)
+        # এখানে আপনার ছবির নাম দিন। গিটহাবে যে নাম আছে সেটি দিন।
+        # উদাহরণস্বরূপ: logo.jpeg অথবা my_photo.jpg.jpeg
+        img = Image.open("logo.jpeg") 
+        st.image(img, width=280)
     except:
         try:
             img = Image.open("my_photo.jpg.jpeg")
-            st.image(img, width=220)
+            st.image(img, width=280)
         except:
-            st.warning("📸 Logo is loading... Please ensure image is uploaded in GitHub.")
+            st.error("⚠️ Photo NOT found in GitHub! Please rename your photo to 'logo.jpeg'")
 
-# Title and Subtitle in English
+# টাইটেল ও সাব-টাইটেল (একদম মাঝখানে থাকবে)
 st.markdown('<h1 class="main-title">Solaiman Transcript & SEO</h1>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">Your AI-Powered Video Content & SEO Automation Tool</p>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 
-# 3. Upload Section (English Interface)
-# Centering uploader
-u_col1, u_col2, u_col3 = st.columns([1, 3, 1])
-with u_col2:
-    uploaded_file = st.file_uploader("📂 Upload or Drag your video file here (MP4, MOV)", type=["mp4", "mov", "avi"])
+# -------------------------------------------------------------------
+# ৩. ভিডিও আপলোড ও রেজাল্ট সেকশন (ইংরেজিতে)
+# -------------------------------------------------------------------
+# আপলোডার মাঝামাঝি করার জন্য কলাম ব্যবহার
+u_l, u_m, u_r = st.columns([1, 3, 1])
+with u_m:
+    uploaded_file = st.file_uploader("📂 Upload your video file here", type=["mp4", "mov", "avi"])
 
     if uploaded_file is not None:
         st.video(uploaded_file)
         
-        # Processing Button
-        if st.button("Start AI Magic ✨"):
-            with st.spinner('Analyzing your video... Please wait, Solaiman!'):
-                # Temporary file save
+        if st.button("Start AI Processing ✨"):
+            with st.spinner('AI is analyzing your video... Please wait, Solaiman!'):
+                # ভিডিও সেভ
                 with open("temp_vid.mp4", "wb") as f:
                     f.write(uploaded_file.getbuffer())
                 
-                # Transcription Logic
+                # ট্রান্সক্রিপশন
                 model = whisper.load_model("base")
                 result = model.transcribe("temp_vid.mp4")
                 text = result['text']
                 
-                st.success("✅ Success! Your SEO Content is ready below.")
-                
-                # 4. Results Section (English Labels)
+                st.success("✅ Success! Your content is ready below.")
                 st.divider()
+                
+                # ৫. রেজাল্ট প্রদর্শন (সব ইংরেজিতে)
                 st.markdown("### 📌 1. Optimized Video Title")
                 st.code(f"Viral Video: {text[:60]}... 🔥")
                 
                 st.markdown("### 📝 2. Full Bengali Transcript")
-                st.text_area("Video Text Output:", value=text, height=250)
+                st.text_area("Video Text:", value=text, height=250)
                 
                 st.markdown("### 📄 3. SEO Friendly Description")
-                desc = f"Hello everyone! In this video, we discussed {text[:150]} in detail. Don't forget to like and share! \n\n#SolaimanSEO #VideoAutomation #BengaliContent"
-                st.info(desc)
+                st.info(f"Hi Everyone! In this video, we talked about {text[:150]} in detail. Don't forget to like and share! \n\n#SolaimanSEO #BengaliContent")
                 
                 st.markdown("### #️⃣ 4. Viral Hashtags")
                 st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralContent #YouTubeSEO")
                 
                 st.markdown("### 🔑 5. Keywords & Tags")
-                st.code("Solaiman Transcript, Video SEO Tool, Bengali AI, YouTube Keywords")
+                st.code("Solaiman Transcript, Video SEO Tool, Bengali AI Automation")
                 
-                st.markdown("### 🖼️ 6. Thumbnail Design Idea")
-                st.warning(f"Suggestion: Place your photo on the left and write: '{text[:25]}' in bold text on the right.")
+                st.markdown("### 🖼️ 6. Thumbnail Strategy")
+                st.warning(f"Suggestion: Place your photo on the left and write: '{text[:25]}' in bold text.")
 
-# Footer Section
-st.markdown('<div class="footer"><hr>Developed by Solaiman | Powered by AI Technology © 2026</div>', unsafe_allow_html=True)
+# Footer
+st.markdown("<br><hr><center><p style='color:#555;'>Developed by Solaiman | Powered by AI Technology © 2026</p></center>", unsafe_allow_html=True)
