@@ -3,104 +3,77 @@ import whisper
 import os
 from PIL import Image
 
-# 1. App Configuration & Premium Theme
+# 1. App Configuration
 st.set_page_config(page_title="Solaiman Transcript & SEO", page_icon="🎯", layout="wide")
 
-# Custom CSS for English Interface & Centering
+# Custom Styling for Centering everything
 st.markdown("""
     <style>
-    /* Background & Global Text */
     .main { background-color: #0e1117; color: white; }
-    
-    /* Centering Image & Title */
-    .header-container {
-        text-align: center;
-        padding: 50px 0px 20px 0px;
-    }
-    
-    .profile-img {
-        width: 220px;
-        height: 220px;
-        border-radius: 20px; /* Square with rounded corners as per your photo style */
-        object-fit: cover;
-        border: 4px solid #FF4B4B;
-        margin-bottom: 20px;
-    }
-    
-    .main-title {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-weight: 800;
-        font-size: 48px;
-        color: #ffffff;
-        margin: 0;
-    }
-    
-    .sub-title {
-        font-size: 18px;
-        color: #8b949e;
-        margin-bottom: 40px;
-    }
-    
-    /* Button Design */
-    .stButton>button {
-        width: 100%;
-        border-radius: 12px;
-        background: linear-gradient(90deg, #FF4B4B, #FF1F1F);
-        color: white;
-        height: 3.5em;
-        font-weight: bold;
-        font-size: 18px;
-        border: none;
-    }
-    
-    /* Result Box Style */
-    .result-box {
-        background-color: #1a1c24;
-        padding: 25px;
-        border-radius: 15px;
-        border: 1px solid #30363d;
-    }
+    .stButton>button { width: 100%; border-radius: 12px; background: linear-gradient(90deg, #FF4B4B, #FF1F1F); color: white; height: 3.5em; font-weight: bold; font-size: 18px; border: none; }
+    .header-box { text-align: center; padding-top: 30px; }
+    .main-title { font-size: 45px; font-weight: 800; color: #ffffff; margin-bottom: 5px; }
+    .sub-title { font-size: 18px; color: #8b949e; margin-bottom: 30px; }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Centered Photo and Title (English)
-st.markdown('<div class="header-container">', unsafe_allow_html=True)
+# 2. Centered Layout (Photo then Title)
+st.markdown('<div class="header-box">', unsafe_allow_html=True)
 
-try:
-    # Displaying your photo first
-    img = Image.open("my_photo.jpg.jpeg")
-    st.image(img, width=220) # This will be centered automatically by Streamlit in this context
-except:
-    st.info("📸 Logo loading...")
+# Centering the Image
+col_a, col_b, col_c = st.columns([1, 1, 1])
+with col_b:
+    try:
+        # Using your exact photo name from GitHub
+        img = Image.open("my_photo.jpg.jpeg")
+        st.image(img, width=250)
+    except:
+        st.info("📸 Logo is loading...")
 
+# Centered Title and Subtitle
 st.markdown('<h1 class="main-title">Solaiman Transcript & SEO</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Your AI-powered tool for Video Transcription & SEO Automation</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Your Pro AI Tool for Video Content Automation</p>', unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 
 # 3. Video Upload Section (English)
-uploaded_file = st.file_uploader("📂 Upload or Drop your video file here (MP4, MOV, AVI)", type=["mp4", "mov", "avi"])
+uploaded_file = st.file_uploader("📂 Upload your video file here", type=["mp4", "mov", "avi", "mpeg4"])
 
 if uploaded_file is not None:
     st.video(uploaded_file)
     
-    if st.button("Generate SEO Content ✨"):
-        with st.spinner('Processing... Please wait, Solaiman! AI is analyzing your video.'):
-            # Save temporary video
-            with open("temp_vid.mp4", "wb") as f:
+    if st.button("Generate Content ✨"):
+        with st.spinner('AI is analyzing your video... Please wait!'):
+            # Save temporary file
+            with open("temp_video.mp4", "wb") as f:
                 f.write(uploaded_file.getbuffer())
             
-            # 4. Transcription Logic (Whisper AI)
+            # Transcription logic
             model = whisper.load_model("base")
-            result = model.transcribe("temp_vid.mp4")
-            transcript_text = result['text']
+            result = model.transcribe("temp_video.mp4")
+            text = result['text']
             
-            # 5. Result Display (English UI)
-            st.success("Success! Your content is ready.")
+            st.success("✅ Process Completed Successfully!")
             
-            st.markdown("### 📌 1. Engaging Video Title")
-            st.code(f"Viral Video: {transcript_text[:60]}... 🔥")
+            # --- Results ---
+            st.markdown("### 📌 1. Optimized Video Title")
+            st.code(f"Viral Content: {text[:60]}... 🔥")
             
             st.markdown("### 📝 2. Full Bengali Transcript")
-            st.text_area("Transcri
+            st.text_area("Your Video Transcript:", value=text, height=250)
+            
+            st.markdown("### 📄 3. SEO Friendly Description")
+            st.info(f"Hi Everyone! In this video, we talked about {text[:150]}. Hope you find it useful. \n\n#SolaimanSEO #VideoAutomation #BengaliContent")
+            
+            st.markdown("### #️⃣ 4. Viral Hashtags")
+            st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralVideo #YouTubeTips #SEO2026")
+            
+            st.markdown("### 🔑 5. Keywords & Tags")
+            st.code("Solaiman Transcript, AI Transcription, Video SEO Tool, Bengali Content Creation")
+            
+            st.markdown("### 🖼️ 6. Thumbnail Suggestion")
+            st.warning(f"Strategy: Place your photo on the left and write: '{text[:25]}' in bold fonts.")
+
+# Footer
+st.markdown("<br><hr><center><p style='color:#555;'>Developed by Solaiman | Powered by AI Technology © 2026</p></center>", unsafe_allow_html=True)
