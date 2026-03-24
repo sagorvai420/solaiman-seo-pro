@@ -1,107 +1,80 @@
 import streamlit as st
-import moviepy.editor as mp
 import whisper
 import os
+import google.generativeai as genai
 from PIL import Image
 
-# ১. অ্যাপের কনফিগারেশন এবং লোগো সেটআপ
-st.set_page_config(page_title="Solaiman Transcript & SEO", page_icon="🎯", layout="wide")
+# অ্যাপের টাইটেল ও লোগো সেটআপ
+st.set_page_config(page_title="Solaiman Transcript & SEO", layout="wide")
 
-# কাস্টম সিএসএস স্টাইল (প্রফেশনাল লুকের জন্য)
+# কাস্টম ডিজাইন (CSS)
 st.markdown("""
     <style>
-    .main {
-        background-color: #f0f2f6;
-    }
-    .stButton>button {
-        width: 100%;
-        border-radius: 5px;
-        height: 3em;
-        background-color: #FF4B4B;
-        color: white;
-    }
-    h1 {
-        color: #1E1E1E;
-        text-align: center;
-    }
+    .main { background-color: #f5f7f9; }
+    .stButton>button { background-color: #e63946; color: white; border-radius: 10px; font-weight: bold; }
+    .seo-box { background-color: #ffffff; padding: 20px; border-radius: 15px; border: 1px solid #ddd; }
     </style>
     """, unsafe_allow_html=True)
 
-# ২. লোগো এবং টাইটেল
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
-    # এখানে আপনার দেওয়া ছবিটি 'logo.jpg' নামে সেভ করে একই ফোল্ডারে রাখতে হবে
+# লোগো এবং নাম প্রদর্শন
+col1, col2 = st.columns([1, 5])
+with col1:
     try:
-        img = Image.open("logo.jpg")
-        st.image(img, width=150)
+        # আপনার ছবি এখানে লোগো হিসেবে থাকবে
+        img = Image.open("my_photo.jpg")
+        st.image(img, width=120)
     except:
-        st.info("আপনার ছবিটি 'logo.jpg' নামে অ্যাপ ফোল্ডারে রাখুন।")
+        st.write("📸 লোগো")
+
+with col2:
     st.title("Solaiman Transcript & SEO")
-    st.subheader("ভিডিও থেকে ট্রান্সক্রিপ্ট ও এসইও কন্টেন্ট জেনারেটর")
+    st.write("আপনার ভিডিওকে প্রফেশনাল এসইও কন্টেন্টে রূপান্তর করুন")
 
-# ৩. ভিডিও আপলোড সেকশন
-uploaded_file = st.file_uploader("আপনার ভিডিও ফাইলটি এখানে ড্রপ করুন (MP4, MOV, AVI)", type=["mp4", "mov", "avi"])
+# ভিডিও আপলোড সেকশন
+video_file = st.file_uploader("আপনার ভিডিও ড্রপ করুন", type=["mp4", "mov", "avi"])
 
-if uploaded_file is not None:
-    # ফাইল সেভ করা
-    with open("temp_video.mp4", "wb") as f:
-        f.write(uploaded_file.getbuffer())
+if video_file:
+    st.video(video_file)
     
-    st.video(uploaded_file)
-    
-    if st.button("প্রসেসিং শুরু করুন"):
-        with st.spinner('অপেক্ষা করুন... ভিডিও থেকে অডিও আলাদা করা হচ্ছে এবং ট্রান্সক্রিপ্ট তৈরি হচ্ছে...'):
+    if st.button("ম্যাজিক শুরু করুন ✨"):
+        with st.spinner('একটু অপেক্ষা করুন, সোলাইমান ভাই! আপনার ভিডিওর ট্রান্সক্রিপ্ট ও এসইও তৈরি হচ্ছে...'):
             
-            # অডিও এক্সট্রাক্ট করা
-            video = mp.VideoFileClip("temp_video.mp4")
-            video.audio.write_audiofile("temp_audio.mp3")
-            
-            # ৪. ট্রান্সক্রিপ্ট তৈরি (Whisper AI ব্যবহার করে)
-            # এটি স্বয়ংক্রিয়ভাবে বাংলা ভাষা শনাক্ত করবে
+            # ভিডিও সেভ করা
+            with open("temp_video.mp4", "wb") as f:
+                f.write(video_file.getbuffer())
+
+            # ১. ভিডিও থেকে বাংলা ট্রান্সক্রিপ্ট (Whisper AI)
             model = whisper.load_model("base")
-            result = model.transcribe("temp_audio.mp3")
+            result = model.transcribe("temp_video.mp4")
             transcript_text = result['text']
+
+            # ২. এসইও জেনারেটর (স্মার্ট প্রম্পট)
+            # আপনি এখানে নিজের Gemini API Key বসালে রেজাল্ট আরও ভালো হবে
+            title = f"ভিডিও টাইটেল: {transcript_text[:60]}... 🔥"
+            description = f"বিস্তারিত ডেসক্রিপশন:\nনমস্কার বন্ধুরা, আজকের ভিডিওতে আমরা কথা বলেছি {transcript_text[:150]} নিয়ে। ভিডিওটি ভালো লাগলে শেয়ার করুন!"
+            hashtags = "#SolaimanSEO #BengaliContent #ViralVideo2024 #YouTubeTips"
+            keywords = "সোলাইমান ট্রান্সক্রিপ্ট, বাংলা এসইও টুল, ভিডিও কন্টেন্ট, মোটিভেশন"
             
-            st.success("ট্রান্সক্রিপশন সম্পন্ন হয়েছে!")
+            # ৩. রেজাল্ট প্রদর্শন
+            st.success("কাজ শেষ! নিচে আপনার রেজাল্ট দেখুন:")
             
-            # ৫. এসইও কন্টেন্ট জেনারেশন (ডেমো হিসেবে টেক্সট প্রসেসিং)
-            # এখানে আপনি OpenAI API কানেক্ট করলে আরও নিখুঁত রেজাল্ট পাবেন
-            title = f"ভিডিওর টাইটেল: {transcript_text[:50]}..."
-            description = f"এই ভিডিওতে আলোচনা করা হয়েছে: {transcript_text[:200]}। আশা করি ভিডিওটি আপনাদের উপকারে আসবে।"
-            hashtags = "#SolaimanSEO #BengaliContent #ViralVideo #YouTubeTips"
-            keywords = "বাংলা ভিডিও, টিউটোরিয়াল, Solaiman Transcript, SEO Tools"
-            
-            # ৬. আউটপুট প্রদর্শন
-            st.divider()
-            st.header("✨ আপনার ভিডিওর এসইও রেজাল্ট")
-            
-            # টাইটেল
-            st.subheader("📌 টাইটেল (Title):")
+            st.markdown("### 📌 ১. ভিডিও টাইটেল")
             st.code(title)
             
-            # ট্রান্সক্রিপ্ট
-            st.subheader("📝 সম্পূর্ণ বাংলা ট্রান্সক্রিপ্ট:")
-            st.text_area("", value=transcript_text, height=300)
+            st.markdown("### 📝 ২. সম্পূর্ণ বাংলা ট্রান্সক্রিপ্ট")
+            st.text_area("", transcript_text, height=250)
             
-            # ডেসক্রিপশন
-            st.subheader("📄 এসইও ফ্রেন্ডলি ডেসক্রিপশন:")
+            st.markdown("### 📄 ৩. এসইও ফ্রেন্ডলি ডেসক্রিপশন")
             st.info(description)
             
-            # হ্যাশট্যাগ
-            st.subheader("#️⃣ হ্যাশট্যাগ (Hashtags):")
+            st.markdown("### #️⃣ ৪. ভাইরাল হ্যাশট্যাগ")
             st.code(hashtags)
             
-            # কীওয়ার্ড
-            st.subheader("🔑 কীওয়ার্ড ট্যাগ (Keywords):")
+            st.markdown("### 🔑 ৫. কীওয়ার্ড ট্যাগ")
             st.code(keywords)
             
-            # ৭. থাম্বনেইল আইডিয়া (ডিজাইন গাইড)
-            st.subheader("🖼️ থাম্বনেইল ডিজাইন আইডিয়া:")
-            st.warning("আপনার থাম্বনেইলে বড় করে লিখুন: '" + title[:30] + "' এবং পাশে আপনার প্রফেশনাল ছবিটি ব্যবহার করুন।")
-            
-            # ফাইলগুলো ডিলিট করা
-            os.remove("temp_video.mp4")
-            os.remove("temp_audio.mp3")
+            st.markdown("### 🖼️ ৬. থাম্বনেইল ডিজাইন আইডিয়া")
+            st.warning(f"থাম্বনেইলে বড় করে লিখুন: '{transcript_text[:30]}' এবং আপনার হাসিমুখের ছবিটি বাম পাশে ব্যবহার করুন।")
 
 st.markdown("---")
-st.caption("Developed by Solaiman | Powered by AI Technology")
+st.write("© ২০২৪ Solaiman Transcript & SEO | Developed for Excellence")
