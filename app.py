@@ -3,55 +3,138 @@ import whisper
 import os
 from PIL import Image
 
-# ১. অ্যাপের প্রফেশনাল ডিজাইন
+# 1. App Configuration
 st.set_page_config(page_title="Solaiman Transcript & SEO", page_icon="🎯", layout="wide")
 
+# Custom Styling for Perfect Centering & Dark Theme
 st.markdown("""
     <style>
+    /* Background and Global Styles */
     .main { background-color: #0e1117; color: white; }
-    .stButton>button { width: 100%; border-radius: 15px; background-color: #FF4B4B; color: white; height: 3.5em; font-weight: bold; border: none; font-size: 18px;}
-    h1 { color: #ffffff; text-align: center; }
+    
+    /* Centering Header Elements */
+    .header-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        width: 100%;
+        padding-top: 30px;
+    }
+
+    .main-title {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-weight: 800;
+        font-size: 45px;
+        color: #ffffff;
+        margin-top: 15px;
+        margin-bottom: 5px;
+    }
+
+    .sub-title {
+        font-size: 18px;
+        color: #8b949e;
+        margin-bottom: 40px;
+    }
+
+    /* Red Professional Button */
+    .stButton>button {
+        width: 100%;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #FF4B4B, #FF1F1F);
+        color: white;
+        height: 3.5em;
+        font-weight: bold;
+        font-size: 18px;
+        border: none;
+        margin-top: 10px;
+    }
+    
+    /* Centering the File Uploader Label */
+    .stFileUploader label {
+        display: flex;
+        justify-content: center;
+        font-size: 18px !important;
+        color: #ffffff !important;
+    }
+
+    /* Centering footer */
+    .footer {
+        text-align: center;
+        padding: 50px;
+        color: #555;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# ২. লোগো এবং নাম
-col1, col2, col3 = st.columns([1, 2, 1])
-with col2:
+# 2. Centered Header Section (Photo then Title)
+st.markdown('<div class="header-container">', unsafe_allow_html=True)
+
+# Centering Image using Columns
+col_l, col_m, col_r = st.columns([1, 1, 1])
+with col_m:
     try:
+        # Checking for the photo in your GitHub
         img = Image.open("logo.jpeg")
-        st.image(img, width=180)
+        st.image(img, width=220)
     except:
-        st.info("📸 Solaiman Pro")
-    st.markdown("<h1>Solaiman Transcript & SEO</h1>", unsafe_allow_html=True)
+        try:
+            img = Image.open("my_photo.jpg.jpeg")
+            st.image(img, width=220)
+        except:
+            st.warning("📸 Logo is loading... Please ensure image is uploaded in GitHub.")
+
+# Title and Subtitle in English
+st.markdown('<h1 class="main-title">Solaiman Transcript & SEO</h1>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Your AI-Powered Video Content & SEO Automation Tool</p>', unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.divider()
 
-# ৩. ভিডিও আপলোড
-uploaded_file = st.file_uploader("আপনার ভিডিও ফাইলটি এখানে ড্রপ করুন (MP4, MOV)", type=["mp4", "mov", "avi"])
+# 3. Upload Section (English Interface)
+# Centering uploader
+u_col1, u_col2, u_col3 = st.columns([1, 3, 1])
+with u_col2:
+    uploaded_file = st.file_uploader("📂 Upload or Drag your video file here (MP4, MOV)", type=["mp4", "mov", "avi"])
 
-if uploaded_file is not None:
-    st.video(uploaded_file)
-    
-    if st.button("ম্যাজিক শুরু করুন 🚀"):
-        with st.spinner('একটু অপেক্ষা করুন, সোলাইমান ভাই! AI কাজ করছে...'):
-            with open("temp_vid.mp4", "wb") as f:
-                f.write(uploaded_file.getbuffer())
-            
-            # সরাসরি ট্রান্সক্রিপ্ট
-            model = whisper.load_model("base")
-            result = model.transcribe("temp_vid.mp4")
-            text = result['text']
-            
-            st.success("অভিনন্দন! আপনার কন্টেন্ট তৈরি।")
-            st.markdown("### 📌 ১. ভিডিও টাইটেল (Title)")
-            st.code(f"অসাধারণ ভিডিও: {text[:60]}... 🔥")
-            st.markdown("### 📝 ২. সম্পূর্ণ বাংলা ট্রান্সক্রিপ্ট")
-            st.text_area("", text, height=250)
-            st.markdown("### 📄 ৩. এসইও ফ্রেন্ডলি ডেসক্রিপশন")
-            st.info(f"এই ভিডিওতে আমরা বিস্তারিত আলোচনা করেছি {text[:150]} নিয়ে। #SolaimanSEO")
-            st.markdown("### #️⃣ ৪. ভাইরাল হ্যাশট্যাগ")
-            st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralContent")
-            st.markdown("### 🔑 ৫. কীওয়ার্ড ট্যাগ")
-            st.code("সোলাইমান ট্রান্সক্রিপ্ট, ভিডিও এসইও টুল, ইউটিউব এসইও")
+    if uploaded_file is not None:
+        st.video(uploaded_file)
+        
+        # Processing Button
+        if st.button("Start AI Magic ✨"):
+            with st.spinner('Analyzing your video... Please wait, Solaiman!'):
+                # Temporary file save
+                with open("temp_vid.mp4", "wb") as f:
+                    f.write(uploaded_file.getbuffer())
+                
+                # Transcription Logic
+                model = whisper.load_model("base")
+                result = model.transcribe("temp_vid.mp4")
+                text = result['text']
+                
+                st.success("✅ Success! Your SEO Content is ready below.")
+                
+                # 4. Results Section (English Labels)
+                st.divider()
+                st.markdown("### 📌 1. Optimized Video Title")
+                st.code(f"Viral Video: {text[:60]}... 🔥")
+                
+                st.markdown("### 📝 2. Full Bengali Transcript")
+                st.text_area("Video Text Output:", value=text, height=250)
+                
+                st.markdown("### 📄 3. SEO Friendly Description")
+                desc = f"Hello everyone! In this video, we discussed {text[:150]} in detail. Don't forget to like and share! \n\n#SolaimanSEO #VideoAutomation #BengaliContent"
+                st.info(desc)
+                
+                st.markdown("### #️⃣ 4. Viral Hashtags")
+                st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralContent #YouTubeSEO")
+                
+                st.markdown("### 🔑 5. Keywords & Tags")
+                st.code("Solaiman Transcript, Video SEO Tool, Bengali AI, YouTube Keywords")
+                
+                st.markdown("### 🖼️ 6. Thumbnail Design Idea")
+                st.warning(f"Suggestion: Place your photo on the left and write: '{text[:25]}' in bold text on the right.")
 
-st.markdown("<br><hr><center>Developed by Solaiman</center>", unsafe_allow_html=True)
+# Footer Section
+st.markdown('<div class="footer"><hr>Developed by Solaiman | Powered by AI Technology © 2026</div>', unsafe_allow_html=True)
