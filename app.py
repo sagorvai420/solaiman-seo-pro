@@ -18,7 +18,7 @@ st.markdown("""
 col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     try:
-        img = Image.open("my_photo.jpg.jpeg")
+        img = Image.open("logo.jpeg")
         st.image(img, width=180)
     except:
         st.info("📸 Solaiman Pro")
