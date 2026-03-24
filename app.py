@@ -1,130 +1,107 @@
 import streamlit as st
+import moviepy.editor as mp
 import whisper
 import os
-import base64
-from PIL import Image, ImageDraw, ImageFont
-import io
-import textwrap
+from PIL import Image
 
-# 1. App Configuration
-st.set_page_config(page_title="Solaiman Transcript & SEO Pro", page_icon="🎨", layout="wide")
+# ১. অ্যাপের কনফিগারেশন এবং লোগো সেটআপ
+st.set_page_config(page_title="Solaiman Transcript & SEO", page_icon="🎯", layout="wide")
 
-def get_image_base64(path):
-    with open(path, "rb") as img_file:
-        return base64.b64encode(img_file.read()).decode()
-
-# --- Custom Styling for Absolute Centering & English UI ---
+# কাস্টম সিএসএস স্টাইল (প্রফেশনাল লুকের জন্য)
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; color: white; }
-    .header-section { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; width: 100%; padding-top: 30px; }
-    .profile-pic { width: 230px; height: 230px; border-radius: 20px; border: 4px solid #FF4B4B; object-fit: cover; margin-bottom: 15px; box-shadow: 0px 0px 20px rgba(255, 75, 75, 0.4); }
-    .main-title { font-family: 'Segoe UI', sans-serif; font-weight: 800; font-size: 50px; color: #ffffff; margin:0; }
-    .sub-title { font-size: 18px; color: #8b949e; margin-bottom: 30px; }
-    .stButton>button { width: 100%; max-width: 500px; border-radius: 12px; background: linear-gradient(90deg, #FF4B4B, #FF1F1F); color: white !important; height: 3.5em; font-weight: bold; font-size: 19px; border: none; display: block; margin: 0 auto; }
-    .stFileUploader label { display: flex; justify-content: center; font-size: 18px !important; color: white !important; }
+    .main {
+        background-color: #f0f2f6;
+    }
+    .stButton>button {
+        width: 100%;
+        border-radius: 5px;
+        height: 3em;
+        background-color: #FF4B4B;
+        color: white;
+    }
+    h1 {
+        color: #1E1E1E;
+        text-align: center;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Header Section
-try:
-    img_path = "logo.jpeg" if os.path.exists("logo.jpeg") else "my_photo.jpg.jpeg"
-    img_base64 = get_image_base64(img_path)
-    st.markdown(f'<div class="header-section"><img src="data:image/jpeg;base64,{img_base64}" class="profile-pic"><h1 class="main-title">Solaiman Transcript & SEO</h1><p class="sub-title">Your AI-Powered Video Content & SEO Automation Tool</p></div>', unsafe_allow_html=True)
-except:
-    st.markdown('<div class="header-section"><h1 class="main-title">Solaiman Transcript & SEO</h1></div>', unsafe_allow_html=True)
-
-st.divider()
-
-# -------------------------------------------------------------------
-# 3. Professional Thumbnail Designer (Bengali Text)
-# -------------------------------------------------------------------
-def create_bangla_thumbnail(text, photo_path):
-    width, height = 1280, 720
-    img = Image.new('RGB', (width, height), color=(14, 17, 23))
-    draw = ImageDraw.Draw(img)
-    
-    # Red Side Accent
-    draw.rectangle([0, 0, 15, height], fill="#FF4B4B")
-    
-    # Paste User Photo on Left
+# ২. লোগো এবং টাইটেল
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    # এখানে আপনার দেওয়া ছবিটি 'logo.jpg' নামে সেভ করে একই ফোল্ডারে রাখতে হবে
     try:
-        user_photo = Image.open(photo_path).convert("RGBA")
-        user_photo.thumbnail((600, 600))
-        img.paste(user_photo, (60, 60), user_photo if "A" in user_photo.getbands() else None)
+        img = Image.open("logo.jpg")
+        st.image(img, width=150)
     except:
-        pass
+        st.info("আপনার ছবিটি 'logo.jpg' নামে অ্যাপ ফোল্ডারে রাখুন।")
+    st.title("Solaiman Transcript & SEO")
+    st.subheader("ভিডিও থেকে ট্রান্সক্রিপ্ট ও এসইও কন্টেন্ট জেনারেটর")
 
-    # Draw Bengali Text on Right
-    try:
-        font = ImageFont.truetype("font.ttf", 85)
-    except:
-        font = ImageFont.load_default()
+# ৩. ভিডিও আপলোড সেকশন
+uploaded_file = st.file_uploader("আপনার ভিডিও ফাইলটি এখানে ড্রপ করুন (MP4, MOV, AVI)", type=["mp4", "mov", "avi"])
 
-    # Get first 4-5 meaningful Bengali words for thumbnail
-    clean_text = text[:80]
-    lines = textwrap.wrap(clean_text, width=15)
+if uploaded_file is not None:
+    # ফাইল সেভ করা
+    with open("temp_video.mp4", "wb") as f:
+        f.write(uploaded_file.getbuffer())
     
-    y_text = 180
-    for line in lines[:2]:
-        draw.text((680, y_text), line, font=font, fill="#FFFFFF")
-        y_text += 130
+    st.video(uploaded_file)
     
-    # Bottom Branding in Red
-    draw.text((680, 520), "ভাইরাল ভিডিও 🔥", font=font, fill="#FF4B4B")
-    return img
+    if st.button("প্রসেসিং শুরু করুন"):
+        with st.spinner('অপেক্ষা করুন... ভিডিও থেকে অডিও আলাদা করা হচ্ছে এবং ট্রান্সক্রিপ্ট তৈরি হচ্ছে...'):
+            
+            # অডিও এক্সট্রাক্ট করা
+            video = mp.VideoFileClip("temp_video.mp4")
+            video.audio.write_audiofile("temp_audio.mp3")
+            
+            # ৪. ট্রান্সক্রিপ্ট তৈরি (Whisper AI ব্যবহার করে)
+            # এটি স্বয়ংক্রিয়ভাবে বাংলা ভাষা শনাক্ত করবে
+            model = whisper.load_model("base")
+            result = model.transcribe("temp_audio.mp3")
+            transcript_text = result['text']
+            
+            st.success("ট্রান্সক্রিপশন সম্পন্ন হয়েছে!")
+            
+            # ৫. এসইও কন্টেন্ট জেনারেশন (ডেমো হিসেবে টেক্সট প্রসেসিং)
+            # এখানে আপনি OpenAI API কানেক্ট করলে আরও নিখুঁত রেজাল্ট পাবেন
+            title = f"ভিডিওর টাইটেল: {transcript_text[:50]}..."
+            description = f"এই ভিডিওতে আলোচনা করা হয়েছে: {transcript_text[:200]}। আশা করি ভিডিওটি আপনাদের উপকারে আসবে।"
+            hashtags = "#SolaimanSEO #BengaliContent #ViralVideo #YouTubeTips"
+            keywords = "বাংলা ভিডিও, টিউটোরিয়াল, Solaiman Transcript, SEO Tools"
+            
+            # ৬. আউটপুট প্রদর্শন
+            st.divider()
+            st.header("✨ আপনার ভিডিওর এসইও রেজাল্ট")
+            
+            # টাইটেল
+            st.subheader("📌 টাইটেল (Title):")
+            st.code(title)
+            
+            # ট্রান্সক্রিপ্ট
+            st.subheader("📝 সম্পূর্ণ বাংলা ট্রান্সক্রিপ্ট:")
+            st.text_area("", value=transcript_text, height=300)
+            
+            # ডেসক্রিপশন
+            st.subheader("📄 এসইও ফ্রেন্ডলি ডেসক্রিপশন:")
+            st.info(description)
+            
+            # হ্যাশট্যাগ
+            st.subheader("#️⃣ হ্যাশট্যাগ (Hashtags):")
+            st.code(hashtags)
+            
+            # কীওয়ার্ড
+            st.subheader("🔑 কীওয়ার্ড ট্যাগ (Keywords):")
+            st.code(keywords)
+            
+            # ৭. থাম্বনেইল আইডিয়া (ডিজাইন গাইড)
+            st.subheader("🖼️ থাম্বনেইল ডিজাইন আইডিয়া:")
+            st.warning("আপনার থাম্বনেইলে বড় করে লিখুন: '" + title[:30] + "' এবং পাশে আপনার প্রফেশনাল ছবিটি ব্যবহার করুন।")
+            
+            # ফাইলগুলো ডিলিট করা
+            os.remove("temp_video.mp4")
+            os.remove("temp_audio.mp3")
 
-# -------------------------------------------------------------------
-# 4. Processing Logic (Interface: English | Output: Bengali)
-# -------------------------------------------------------------------
-col_l, col_m, col_r = st.columns([1, 2, 1])
-with col_m:
-    uploaded_file = st.file_uploader("📂 Upload or Drag your Video/Audio (Max 2GB)", type=["mp4", "mov", "avi", "mp3"])
-
-    if uploaded_file is not None:
-        st.success(f"File '{uploaded_file.name}' is uploaded successfully!")
-        
-        if st.button("Generate Pro Results 🚀"):
-            with st.spinner('AI is analyzing... generating results in Bengali!'):
-                with open("temp_file", "wb") as f:
-                    f.write(uploaded_file.getbuffer())
-                
-                model = whisper.load_model("base")
-                result = model.transcribe("temp_file")
-                transcript = result['text']
-                
-                st.balloons()
-                st.success("✅ Results Generated Successfully!")
-                
-                # --- THUMBNAIL DESIGN ---
-                st.subheader("🖼️ Your Auto-Designed Thumbnail")
-                thumb_img = create_bangla_thumbnail(transcript, img_path)
-                st.image(thumb_img)
-                
-                buf = io.BytesIO()
-                thumb_img.save(buf, format="PNG")
-                st.download_button("Download Thumbnail 📥", buf.getvalue(), "solaiman_thumbnail.png", "image/png")
-                
-                st.divider()
-                
-                # --- BENGALI SEO CONTENT ---
-                st.markdown("### 📌 ১. ভিডিওর আকর্ষণীয় টাইটেল (Title)")
-                st.code(f"আকর্ষণীয় ভিডিও: {transcript[:50]}... 🔥")
-                
-                st.markdown("### 📝 ২. সম্পূর্ণ বাংলা ট্রান্সক্রিপ্ট (Transcript)")
-                st.text_area("Video Text:", value=transcript, height=250)
-                
-                st.markdown("### 📄 ৩. এসইও ডেসক্রিপশন (SEO Description)")
-                desc = f"নমস্কার বন্ধুরা! আজকের ভিডিওতে আমরা বিস্তারিত আলোচনা করেছি {transcript[:150]} নিয়ে। ভিডিওটি আপনাদের কাজে লাগলে লাইক ও শেয়ার করার অনুরোধ রইল। \n\n#SolaimanSEO #BengaliAutomation #YouTubeTips"
-                st.info(desc)
-                
-                st.markdown("### #️⃣ ৪. ভাইরাল হ্যাশট্যাগ (Hashtags)")
-                st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralVideo2026 #YouTubeSuccess")
-                
-                st.markdown("### 🔑 ৫. কীওয়ার্ড এবং ট্যাগ (Keywords & Tags)")
-                st.code("সোলাইমান ট্রান্সক্রিপ্ট, ভিডিও এসইও টুল, বাংলা এআই অটোমেশন, ইউটিউব ভাইরাল টিপস, ভিডিও কন্টেন্ট এআই")
-                
-                if os.path.exists("temp_file"):
-                    os.remove("temp_file")
-
-st.markdown("<br><hr><center><p style='color:#555;'>Developed by Solaiman | Powered by AI Technology © 2026</p></center>", unsafe_allow_html=True)
+st.markdown("---")
+st.caption("Developed by Solaiman | Powered by AI Technology")
