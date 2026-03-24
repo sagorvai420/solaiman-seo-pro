@@ -6,7 +6,7 @@ from PIL import Image, ImageDraw, ImageFont
 import io
 import textwrap
 
-# 1. App Configuration - English Name: Solaiman
+# 1. App Configuration
 st.set_page_config(page_title="Solaiman Transcript & SEO Pro", page_icon="🎨", layout="wide")
 
 def get_image_base64(path):
@@ -26,7 +26,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# 2. Header Section - English Name: Solaiman
+# 2. Header Section
 try:
     img_path = "logo.jpeg" if os.path.exists("logo.jpeg") else "my_photo.jpg.jpeg"
     img_base64 = get_image_base64(img_path)
@@ -61,7 +61,7 @@ def create_bangla_thumbnail(text, photo_path):
     except:
         font = ImageFont.load_default()
 
-    # Get catchy Bengali words for thumbnail
+    # Get first 4-5 meaningful Bengali words for thumbnail
     clean_text = text[:80]
     lines = textwrap.wrap(clean_text, width=15)
     
@@ -70,6 +70,7 @@ def create_bangla_thumbnail(text, photo_path):
         draw.text((680, y_text), line, font=font, fill="#FFFFFF")
         y_text += 130
     
+    # Bottom Branding in Red
     draw.text((680, 520), "ভাইরাল ভিডিও 🔥", font=font, fill="#FF4B4B")
     return img
 
@@ -78,8 +79,7 @@ def create_bangla_thumbnail(text, photo_path):
 # -------------------------------------------------------------------
 col_l, col_m, col_r = st.columns([1, 2, 1])
 with col_m:
-    # Uploader - Solaiman requested large file support
-    uploaded_file = st.file_uploader("📂 Upload or Drag your Video/Audio (Supports Large Files)", type=["mp4", "mov", "avi", "mp3"])
+    uploaded_file = st.file_uploader("📂 Upload or Drag your Video/Audio (Max 2GB)", type=["mp4", "mov", "avi", "mp3"])
 
     if uploaded_file is not None:
         st.success(f"File '{uploaded_file.name}' is uploaded successfully!")
@@ -94,7 +94,7 @@ with col_m:
                 transcript = result['text']
                 
                 st.balloons()
-                st.success("✅ Success! Your Results are Ready.")
+                st.success("✅ Results Generated Successfully!")
                 
                 # --- THUMBNAIL DESIGN ---
                 st.subheader("🖼️ Your Auto-Designed Thumbnail")
@@ -109,24 +109,22 @@ with col_m:
                 
                 # --- BENGALI SEO CONTENT ---
                 st.markdown("### 📌 ১. ভিডিওর আকর্ষণীয় টাইটেল (Title)")
-                st.code(f"ভাইরাল ভিডিও: {transcript[:50]}... 🔥")
+                st.code(f"আকর্ষণীয় ভিডিও: {transcript[:50]}... 🔥")
                 
                 st.markdown("### 📝 ২. সম্পূর্ণ বাংলা ট্রান্সক্রিপ্ট (Transcript)")
-                st.text_area("Video Text Output:", value=transcript, height=250)
+                st.text_area("Video Text:", value=transcript, height=250)
                 
                 st.markdown("### 📄 ৩. এসইও ডেসক্রিপশন (SEO Description)")
-                # Bengali Name Correction: সোলায়মান
-                desc = f"নমস্কার বন্ধুরা! আজকের ভিডিওতে আমরা বিস্তারিত আলোচনা করেছি {transcript[:150]} নিয়ে। ভিডিওটি আপনাদের কাজে লাগলে লাইক ও শেয়ার করার অনুরোধ রইল। \n\n#সোলায়মানএসইও #SolaimanSEO #BengaliAutomation #YouTubeTips"
+                desc = f"নমস্কার বন্ধুরা! আজকের ভিডিওতে আমরা বিস্তারিত আলোচনা করেছি {transcript[:150]} নিয়ে। ভিডিওটি আপনাদের কাজে লাগলে লাইক ও শেয়ার করার অনুরোধ রইল। \n\n#SolaimanSEO #BengaliAutomation #YouTubeTips"
                 st.info(desc)
                 
                 st.markdown("### #️⃣ ৪. ভাইরাল হ্যাশট্যাগ (Hashtags)")
-                st.code("#সোলায়মানট্রান্সক্রিপ্ট #SolaimanTranscript #BengaliAI #VideoSEO #ViralVideo2026")
+                st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralVideo2026 #YouTubeSuccess")
                 
                 st.markdown("### 🔑 ৫. কীওয়ার্ড এবং ট্যাগ (Keywords & Tags)")
-                st.code("সোলায়মান ট্রান্সক্রিপ্ট, Solaiman SEO Tool, ভিডিও এসইও টুল, বাংলা এআই অটোমেশন")
+                st.code("সোলাইমান ট্রান্সক্রিপ্ট, ভিডিও এসইও টুল, বাংলা এআই অটোমেশন, ইউটিউব ভাইরাল টিপস, ভিডিও কন্টেন্ট এআই")
                 
                 if os.path.exists("temp_file"):
                     os.remove("temp_file")
 
-# Footer - Bengali Name: সোলায়মান
-st.markdown("<br><hr><center><p style='color:#555;'>Developed by সোলায়মান | Powered by AI Technology © 2026</p></center>", unsafe_allow_html=True)
+st.markdown("<br><hr><center><p style='color:#555;'>Developed by Solaiman | Powered by AI Technology © 2026</p></center>", unsafe_allow_html=True)
