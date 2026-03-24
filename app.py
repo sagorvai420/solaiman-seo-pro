@@ -1,138 +1,150 @@
 import streamlit as st
 import whisper
 import os
+import base64
 from PIL import Image
 
-# 1. App Configuration & Theme
+# 1. App Configuration
 st.set_page_config(page_title="Solaiman Transcript & SEO", page_icon="🎯", layout="wide")
 
-# Custom CSS for perfect centering of Photo, Title, and Subtitle
+# Function to load local image and convert to base64 for absolute centering
+def get_image_base64(path):
+    with open(path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+# --- Custom Styling for Absolute Centering ---
 st.markdown("""
     <style>
-    /* Background and Global Color */
     .main { background-color: #0e1117; color: white; }
     
-    /* Centering the Header Container */
-    .header-box {
+    /* Main container to hold everything in the center */
+    .hero-section {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         text-align: center;
         width: 100%;
-        padding-top: 30px;
+        padding-top: 40px;
     }
 
-    /* Professional Title Style */
+    /* Image Styling */
+    .profile-pic {
+        width: 250px;
+        height: 250px;
+        border-radius: 15px; /* Rounded corners */
+        border: 4px solid #FF4B4B;
+        object-fit: cover;
+        margin-bottom: 20px;
+    }
+
+    /* Title Styling */
     .main-title {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-weight: 800;
-        font-size: 50px;
+        font-size: 52px;
         color: #ffffff;
-        margin-top: 15px;
-        margin-bottom: 0px;
+        margin: 0;
+        line-height: 1.2;
     }
 
-    /* Professional Sub-title Style */
+    /* Subtitle Styling */
     .sub-title {
-        font-size: 20px;
+        font-size: 22px;
         color: #8b949e;
+        margin-top: 10px;
         margin-bottom: 40px;
     }
 
-    /* Red Action Button */
+    /* Button Styling */
     .stButton>button {
         width: 100%;
+        max-width: 500px;
         border-radius: 12px;
         background: linear-gradient(90deg, #FF4B4B, #FF1F1F);
-        color: white;
+        color: white !important;
         height: 3.5em;
         font-weight: bold;
-        font-size: 19px;
+        font-size: 18px;
         border: none;
-        margin-top: 20px;
+        margin: 0 auto;
+        display: block;
     }
-
-    /* Center the file uploader */
-    .stFileUploader label {
-        display: flex;
-        justify-content: center;
-        color: #ffffff !important;
-        font-size: 18px !important;
-    }
+    
+    /* Center File Uploader */
+    .uploadedFile { text-align: center; }
+    .stFileUploader label { display: flex; justify-content: center; font-size: 18px !important; color: white !important; }
     </style>
     """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
-# ২. লোগো ও টাইটেল সেকশন (সবকিছু মাঝখানে রাখার জন্য)
+# 2. Hero Section: Image + Title + Subtitle (Absolute Center)
 # -------------------------------------------------------------------
-st.markdown('<div class="header-box">', unsafe_allow_html=True)
-
-# মাঝখানে ছবি আনার জন্য কলাম ব্যবহার
-col_l, col_m, col_r = st.columns([1, 1, 1])
-with col_m:
-    try:
-        # এখানে আপনার ছবির নাম দিন। গিটহাবে যে নাম আছে সেটি দিন।
-        # উদাহরণস্বরূপ: logo.jpeg অথবা my_photo.jpg.jpeg
-        img = Image.open("logo.jpeg") 
-        st.image(img, width=280)
-    except:
-        try:
-            img = Image.open("my_photo.jpg.jpeg")
-            st.image(img, width=280)
-        except:
-            st.error("⚠️ Photo NOT found in GitHub! Please rename your photo to 'logo.jpeg'")
-
-# টাইটেল ও সাব-টাইটেল (একদম মাঝখানে থাকবে)
-st.markdown('<h1 class="main-title">Solaiman Transcript & SEO</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Your AI-Powered Video Content & SEO Automation Tool</p>', unsafe_allow_html=True)
-st.markdown('</div>', unsafe_allow_html=True)
+try:
+    # Trying to find your photo in GitHub
+    img_path = "my_photo.jpg.jpeg"
+    if not os.path.exists(img_path):
+        img_path = "logo.jpeg"
+        
+    img_base64 = get_image_base64(img_path)
+    
+    # Injecting Image and Text inside a centered DIV
+    st.markdown(f"""
+        <div class="hero-section">
+            <img src="data:image/jpeg;base64,{img_base64}" class="profile-pic">
+            <h1 class="main-title">Solaiman Transcript & SEO</h1>
+            <p class="sub-title">Your AI-Powered Video Content & SEO Automation Tool</p>
+        </div>
+        """, unsafe_allow_html=True)
+except:
+    # Fallback if image loading fails
+    st.markdown("""
+        <div class="hero-section">
+            <h1 class="main-title">Solaiman Transcript & SEO</h1>
+            <p class="sub-title">Your AI-Powered Video Content & SEO Automation Tool</p>
+        </div>
+        """, unsafe_allow_html=True)
 
 st.divider()
 
 # -------------------------------------------------------------------
-# ৩. ভিডিও আপলোড ও রেজাল্ট সেকশন (ইংরেজিতে)
+# 3. Upload and Result Section (English)
 # -------------------------------------------------------------------
-# আপলোডার মাঝামাঝি করার জন্য কলাম ব্যবহার
-u_l, u_m, u_r = st.columns([1, 3, 1])
-with u_m:
+# Centering the uploader area
+col_l, col_m, col_r = st.columns([1, 2, 1])
+with col_m:
     uploaded_file = st.file_uploader("📂 Upload your video file here", type=["mp4", "mov", "avi"])
 
     if uploaded_file is not None:
         st.video(uploaded_file)
         
-        if st.button("Start AI Processing ✨"):
-            with st.spinner('AI is analyzing your video... Please wait, Solaiman!'):
-                # ভিডিও সেভ
+        if st.button("Generate SEO Content ✨"):
+            with st.spinner('AI is processing your video... Please wait!'):
                 with open("temp_vid.mp4", "wb") as f:
                     f.write(uploaded_file.getbuffer())
                 
-                # ট্রান্সক্রিপশন
+                # Transcription
                 model = whisper.load_model("base")
                 result = model.transcribe("temp_vid.mp4")
                 text = result['text']
                 
-                st.success("✅ Success! Your content is ready below.")
+                st.success("✅ Success! SEO Content Generated.")
                 st.divider()
                 
-                # ৫. রেজাল্ট প্রদর্শন (সব ইংরেজিতে)
+                # English UI Results
                 st.markdown("### 📌 1. Optimized Video Title")
-                st.code(f"Viral Video: {text[:60]}... 🔥")
+                st.code(f"Viral Content: {text[:60]}... 🔥")
                 
-                st.markdown("### 📝 2. Full Bengali Transcript")
-                st.text_area("Video Text:", value=text, height=250)
+                st.markdown("### 📝 2. Full Video Transcript (Bengali)")
+                st.text_area("Transcript:", value=text, height=250)
                 
                 st.markdown("### 📄 3. SEO Friendly Description")
-                st.info(f"Hi Everyone! In this video, we talked about {text[:150]} in detail. Don't forget to like and share! \n\n#SolaimanSEO #BengaliContent")
+                st.info(f"Hi Everyone! In this video, we talked about {text[:150]}. \n\n#SolaimanSEO #BengaliAI")
                 
                 st.markdown("### #️⃣ 4. Viral Hashtags")
-                st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralContent #YouTubeSEO")
+                st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralContent")
                 
                 st.markdown("### 🔑 5. Keywords & Tags")
-                st.code("Solaiman Transcript, Video SEO Tool, Bengali AI Automation")
-                
-                st.markdown("### 🖼️ 6. Thumbnail Strategy")
-                st.warning(f"Suggestion: Place your photo on the left and write: '{text[:25]}' in bold text.")
+                st.code("Solaiman Transcript, Video SEO Tool, AI Content Creator")
 
-# Footer
 st.markdown("<br><hr><center><p style='color:#555;'>Developed by Solaiman | Powered by AI Technology © 2026</p></center>", unsafe_allow_html=True)
