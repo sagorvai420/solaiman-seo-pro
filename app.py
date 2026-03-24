@@ -1,80 +1,76 @@
 import streamlit as st
 import whisper
 import os
-import google.generativeai as genai
+import moviepy.editor as mp
 from PIL import Image
 
-# অ্যাপের টাইটেল ও লোগো সেটআপ
-st.set_page_config(page_title="Solaiman Transcript & SEO", layout="wide")
+# অ্যাপের কনফিগারেশন
+st.set_page_config(page_title="Solaiman Transcript & SEO", page_icon="🎯", layout="wide")
 
-# কাস্টম ডিজাইন (CSS)
+# ডিজাইন কাস্টমাইজেশন
 st.markdown("""
     <style>
-    .main { background-color: #f5f7f9; }
-    .stButton>button { background-color: #e63946; color: white; border-radius: 10px; font-weight: bold; }
-    .seo-box { background-color: #ffffff; padding: 20px; border-radius: 15px; border: 1px solid #ddd; }
+    .main { background-color: #0e1117; color: white; }
+    .stButton>button { width: 100%; border-radius: 20px; background-color: #FF4B4B; color: white; height: 3em; font-weight: bold; }
+    .css-10trblm { border-radius: 10px; padding: 20px; background-color: #262730; }
     </style>
     """, unsafe_allow_html=True)
 
-# লোগো এবং নাম প্রদর্শন
-col1, col2 = st.columns([1, 5])
+# লোগো এবং টাইটেল
+col1, col2 = st.columns([1, 4])
 with col1:
     try:
-        # আপনার ছবি এখানে লোগো হিসেবে থাকবে
         img = Image.open("my_photo.jpg")
         st.image(img, width=120)
     except:
-        st.write("📸 লোগো")
-
+        st.write("📸 Solaiman")
 with col2:
     st.title("Solaiman Transcript & SEO")
-    st.write("আপনার ভিডিওকে প্রফেশনাল এসইও কন্টেন্টে রূপান্তর করুন")
+    st.write("ভিডিও থেকে ট্রান্সক্রিপ্ট ও এসইও মেটাডাটা তৈরির প্রফেশনাল প্ল্যাটফর্ম।")
 
-# ভিডিও আপলোড সেকশন
-video_file = st.file_uploader("আপনার ভিডিও ড্রপ করুন", type=["mp4", "mov", "avi"])
+# ভিডিও ড্রপ জোন
+uploaded_file = st.file_uploader("আপনার ভিডিও ফাইলটি এখানে ড্রপ করুন", type=["mp4", "mov", "avi"])
 
-if video_file:
-    st.video(video_file)
-    
-    if st.button("ম্যাজিক শুরু করুন ✨"):
-        with st.spinner('একটু অপেক্ষা করুন, সোলাইমান ভাই! আপনার ভিডিওর ট্রান্সক্রিপ্ট ও এসইও তৈরি হচ্ছে...'):
+if uploaded_file is not None:
+    st.video(uploaded_file)
+    if st.button("কন্টেন্ট জেনারেট করুন 🚀"):
+        with st.spinner('একটু ধৈর্য ধরুন, সোলাইমান ভাই! আপনার ভিডিও প্রসেস হচ্ছে...'):
+            # টেম্পোরারি ফাইল সেভ
+            with open("temp_vid.mp4", "wb") as f:
+                f.write(uploaded_file.getbuffer())
             
-            # ভিডিও সেভ করা
-            with open("temp_video.mp4", "wb") as f:
-                f.write(video_file.getbuffer())
-
-            # ১. ভিডিও থেকে বাংলা ট্রান্সক্রিপ্ট (Whisper AI)
+            # ট্রান্সক্রিপশন
             model = whisper.load_model("base")
-            result = model.transcribe("temp_video.mp4")
-            transcript_text = result['text']
-
-            # ২. এসইও জেনারেটর (স্মার্ট প্রম্পট)
-            # আপনি এখানে নিজের Gemini API Key বসালে রেজাল্ট আরও ভালো হবে
-            title = f"ভিডিও টাইটেল: {transcript_text[:60]}... 🔥"
-            description = f"বিস্তারিত ডেসক্রিপশন:\nনমস্কার বন্ধুরা, আজকের ভিডিওতে আমরা কথা বলেছি {transcript_text[:150]} নিয়ে। ভিডিওটি ভালো লাগলে শেয়ার করুন!"
-            hashtags = "#SolaimanSEO #BengaliContent #ViralVideo2024 #YouTubeTips"
-            keywords = "সোলাইমান ট্রান্সক্রিপ্ট, বাংলা এসইও টুল, ভিডিও কন্টেন্ট, মোটিভেশন"
+            result = model.transcribe("temp_vid.mp4")
+            text = result['text']
             
-            # ৩. রেজাল্ট প্রদর্শন
-            st.success("কাজ শেষ! নিচে আপনার রেজাল্ট দেখুন:")
+            # এসইও জেনারেশন (অটোমেটেড)
+            st.divider()
+            st.header("✨ রেজাল্ট তৈরি!")
             
-            st.markdown("### 📌 ১. ভিডিও টাইটেল")
-            st.code(title)
+            # ১. টাইটেল
+            st.subheader("📌 টাইটেল (Title):")
+            st.code(f"অসাধারণ ভিডিও: {text[:50]}... 🔥")
             
-            st.markdown("### 📝 ২. সম্পূর্ণ বাংলা ট্রান্সক্রিপ্ট")
-            st.text_area("", transcript_text, height=250)
+            # ২. ডেসক্রিপশন
+            st.subheader("📄 এসইও ফ্রেন্ডলি ডেসক্রিপশন:")
+            st.info(f"এই ভিডিওতে আমরা বিস্তারিত আলোচনা করেছি {text[:150]} নিয়ে। ভিডিওটি ভালো লাগলে আমাদের সাথেই থাকুন। \n\n#SolaimanSEO #VideoAutomation")
             
-            st.markdown("### 📄 ৩. এসইও ফ্রেন্ডলি ডেসক্রিপশন")
-            st.info(description)
+            # ৩. ট্রান্সক্রিপ্ট
+            st.subheader("📝 বাংলা ট্রান্সক্রিপ্ট:")
+            st.text_area("", text, height=200)
             
-            st.markdown("### #️⃣ ৪. ভাইরাল হ্যাশট্যাগ")
-            st.code(hashtags)
+            # ৪. হ্যাশট্যাগ
+            st.subheader("#️⃣ হ্যাশট্যাগ (Hashtags):")
+            st.code("#SolaimanTranscript #BengaliAI #VideoSEO #ViralContent #YouTubeTools")
             
-            st.markdown("### 🔑 ৫. কীওয়ার্ড ট্যাগ")
-            st.code(keywords)
+            # ৫. কীওয়ার্ড
+            st.subheader("🔑 কীওয়ার্ড ট্যাগ (Keywords):")
+            st.code("সোলাইমান অ্যাপ, ভিডিও ট্রান্সক্রিপ্ট, বাংলা এসইও, ইউটিউব ভিডিও অপ্টিমাইজেশন")
             
-            st.markdown("### 🖼️ ৬. থাম্বনেইল ডিজাইন আইডিয়া")
-            st.warning(f"থাম্বনেইলে বড় করে লিখুন: '{transcript_text[:30]}' এবং আপনার হাসিমুখের ছবিটি বাম পাশে ব্যবহার করুন।")
+            # ৬. থাম্বনেইল গাইড
+            st.subheader("🖼️ থাম্বনেইল সাজেশান:")
+            st.warning(f"থাম্বনেইলে আপনার দেওয়া ছবির পাশে লিখুন: '{text[:25]}' - এটি বেশি ক্লিক পেতে সাহায্য করবে।")
 
 st.markdown("---")
-st.write("© ২০২৪ Solaiman Transcript & SEO | Developed for Excellence")
+st.caption("Solaiman Transcript & SEO © 2026 | পাওয়ারড বাই কৃত্রিম বুদ্ধিমত্তা")
